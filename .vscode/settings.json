@@ -1,0 +1,10 @@
+{
+  "saveAndRun": {
+    "commands": [
+      {
+        "match": ".*\\.ex$",
+        "cmd": "bash -c 'root_path() { echo $1 | sed \"s/lib.*//\"; }; cd $(root_path ${fileDirname}) && mix test'"
+      }
+    ]
+  }
+}
