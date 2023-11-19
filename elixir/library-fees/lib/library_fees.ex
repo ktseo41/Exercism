@@ -26,8 +26,8 @@ defmodule LibraryFees do
   end
 
   def calculate_late_fee(checkout, return, rate) do
-    {_, checkout_datetime, _} = DateTime.from_iso8601(checkout)
-    {_, return_datetime, _} = DateTime.from_iso8601(return)
+    checkout_datetime = datetime_from_string(checkout)
+    return_datetime = datetime_from_string(return)
     planned_return_date = return_date(checkout_datetime)
 
     late_days = days_late(planned_return_date, return_datetime)
