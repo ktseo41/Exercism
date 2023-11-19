@@ -8,9 +8,7 @@ defmodule LibraryFees do
   end
 
   def return_date(checkout_datetime) do
-    checked_out_before_noon? = before_noon?(checkout_datetime)
-
-    if checked_out_before_noon? do
+    if before_noon?(checkout_datetime) do
       Date.add(checkout_datetime, 28)
     else
       Date.add(checkout_datetime, 29)
@@ -18,7 +16,9 @@ defmodule LibraryFees do
   end
 
   def days_late(planned_return_date, actual_return_datetime) do
-    max(Date.diff(actual_return_datetime, planned_return_date), 0)
+    actual_return_datetime
+    |> Date.diff(planned_return_date)
+    |> max(0)
   end
 
   def monday?(datetime) do
@@ -26,24 +26,17 @@ defmodule LibraryFees do
   end
 
   def calculate_late_fee(checkout, return, rate) do
-    checkout_datetime = datetime_from_string(checkout)
     return_datetime = datetime_from_string(return)
-    planned_return_date = return_date(checkout_datetime)
+    raw_fee = checkout
+    |> datetime_from_string
+    |> return_date
+    |> days_late(return_datetime)
+    |> Kernel.*(rate)
 
-    late_days = days_late(planned_return_date, return_datetime)
-    is_monday? = monday?(return_datetime)
-    is_before_noon? = before_noon?(checkout_datetime)
-
-    if late_days <= 0 do
-      0
-    end
-
-    case {is_monday?, is_before_noon?} do
-      {true, true} -> trunc(late_days * rate * 0.5)
-      {false, true} -> late_days * rate
-      {true, false} -> trunc(late_days * rate * 0.5)
-      {false, false} -> late_days * rate
-      _ -> 0
+    if monday?(return_datetime) do
+      trunc(raw_fee * 0.5)
+    else
+      raw_fee
     end
   end
 end
