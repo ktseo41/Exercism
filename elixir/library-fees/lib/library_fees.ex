@@ -34,11 +34,15 @@ defmodule LibraryFees do
     is_monday? = monday?(return_datetime)
     is_before_noon? = before_noon?(checkout_datetime)
 
+    if late_days <= 0 do
+      0
+    end
+
     case {is_monday?, is_before_noon?} do
-      {true, true} -> if late_days > 28 do trunc((late_days - 28) * rate * 0.5) end
-      {false, true} -> if late_days > 28 do (late_days - 28) * rate end
-      {true, false} -> if late_days > 29 do trunc((late_days - 29) * rate * 0.5) end
-      {false, false} -> if late_days > 29 do (late_days - 29) * rate end
+      {true, true} -> trunc(late_days * rate * 0.5)
+      {false, true} -> late_days * rate
+      {true, false} -> trunc(late_days * rate * 0.5)
+      {false, false} -> late_days * rate
       _ -> 0
     end
   end
