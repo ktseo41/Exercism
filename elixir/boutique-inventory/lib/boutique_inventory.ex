@@ -12,9 +12,20 @@ defmodule BoutiqueInventory do
   end
 
   def increase_quantity(item, count) do
-    Map.replace(item, :quantity_by_size, Map.get(item, :quantity_by_size)
-    |> Enum.map(&{elem(&1, 0), elem(&1, 1) + count})
-    |> Map.new())
+    item
+    |> Enum.map(fn {key, value} ->
+      if key === :quantity_by_size do
+        {key,
+         Map.new(
+           Enum.map(value, fn {mapped_key, mapped_value} ->
+             {mapped_key, mapped_value + count}
+           end)
+         )}
+      else
+        {key, value}
+      end
+    end)
+    |> Map.new()
   end
 
   def total_quantity(item) do
