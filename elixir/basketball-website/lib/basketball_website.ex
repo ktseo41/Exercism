@@ -13,11 +13,9 @@ defmodule BasketballWebsite do
 
   def get_in_path(data, path) do
     if String.contains?(path, ".") do
-      {result, _} = pop_in(data, String.split(path, "."))
-      result
+      get_in(data, String.split(path, "."))
     else
-      {result, _} = pop_in(data, [path])
-      result
+      get_in(data, [path])
     end
   end
 end
