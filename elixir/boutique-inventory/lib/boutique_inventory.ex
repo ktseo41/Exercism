@@ -1,6 +1,6 @@
 defmodule BoutiqueInventory do
   def sort_by_price(inventory) do
-    Enum.sort(inventory, &(&1.price <= &2.price))
+    Enum.sort_by(inventory, &(&1.price), :asc)
   end
 
   def with_missing_price(inventory) do
@@ -14,7 +14,7 @@ defmodule BoutiqueInventory do
   def increase_quantity(item, count) do
     new_quantity_by_size = Map.get(item, :quantity_by_size)
     |> Enum.map(&{elem(&1, 0), elem(&1, 1) + count})
-    |> Enum.into(%{})
+    |> Map.new()
 
     Map.replace(item, :quantity_by_size, new_quantity_by_size)
   end
