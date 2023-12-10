@@ -8,24 +8,30 @@ defmodule CommunityGarden do
   use Agent
 
   def start(opts \\ []) do
-    Agent.start_link(fn -> [] end, name: __MODULE__)
+    Agent.start(fn -> {0, []} end)
   end
 
   def list_registrations(pid) do
-    Agent.get(__MODULE__, &(Enum.filter(&1, fn p -> p.plot_id === pid end)))
+    Agent.get(pid, &(elem(&1, 1)))
   end
 
   def register(pid, register_to) do
-    new_plot = %Plot{plot_id: pid, registered_to: register_to}
-    Agent.update(__MODULE__, &([new_plot | &1]))
-    new_plot
+    Agent.get_and_update(pid, fn {current_pid, list} ->
+      new_plot = %Plot{plot_id: current_pid + 1, registered_to: register_to}
+      {new_plot, {current_pid + 1, [new_plot | list]}}
+    end)
   end
 
   def release(pid, plot_id) do
-    # Please implement the release/2 function
+    Agent.update(pid, fn {current_pid, list} -> {current_pid, Enum.filter(list, fn plot -> plot.plot_id !== plot_id end)} end)
   end
 
   def get_registration(pid, plot_id) do
-    # Please implement the get_registration/2 function
+    plot = Agent.get(pid, fn {_, list} -> Enum.find(list, fn plot -> plot.plot_id === plot_id end) end)
+
+    case plot do
+      nil -> {:not_found, "plot is unregistered"}
+      _ -> plot
+    end
   end
 end
